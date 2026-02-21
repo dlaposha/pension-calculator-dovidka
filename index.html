@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Калькулятор військової пенсії — Адвокат Дмитро Лапоша</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Unbounded:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    :root {
+      --blue: #0057b8;
+      --blue-dark: #003f8a;
+      --yellow: #ffd700;
+      --yellow-soft: #fff6cc;
+      --green: #0d9b5b;
+      --green-light: #e6f7f0;
+      --red: #c0392b;
+      --bg: #f0f3f8;
+      --surface: #ffffff;
+      --surface-2: #f7f9fc;
+      --border: #d1dae8;
+      --text: #1a2233;
+      --text-muted: #6b7a99;
+      --mono: 'IBM Plex Mono', monospace;
+      --display: 'Unbounded', sans-serif;
+      --body: 'Inter', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header { background: var(--blue); position: relative; overflow: hidden; padding: 40px 24px 36px; }
+    header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--yellow) 0%, #ffe566 100%); }
+    header::after { content: 'ПЕНСІЯ'; font-family: var(--display); font-size: clamp(60px, 15vw, 160px); font-weight: 900; color: rgba(255,255,255,0.04); position: absolute; right: -10px; bottom: -20px; line-height: 1; pointer-events: none; white-space: nowrap; }
+    .header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+    .header-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--yellow); margin-bottom: 12px; }
+    header h1 { font-family: var(--display); font-size: clamp(20px, 4vw, 32px); font-weight: 700; color: white; line-height: 1.2; margin-bottom: 8px; }
+    .header-sub { color: rgba(255,255,255,0.7); font-size: 15px; margin-bottom: 24px; }
+    .phones { display: flex; gap: 12px; flex-wrap: wrap; }
+    .phone-link { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; text-decoration: none; font-family: var(--mono); font-size: 14px; font-weight: 600; transition: background 0.2s, border-color 0.2s; }
+    .phone-link:hover { background: rgba(255,255,255,0.22); border-color: var(--yellow); }
+
+    .page { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .card-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .card-step { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; color: var(--blue); background: #e8f0fc; padding: 4px 9px; border-radius: 4px; font-weight: 600; }
+    .card-title { font-family: var(--display); font-size: 15px; font-weight: 700; color: var(--text); }
+    .card-body { padding: 24px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 620px) { .form-row { grid-template-columns: 1fr; } }
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 7px; }
+    .label-hint { font-size: 12px; color: #9aaabf; text-transform: none; letter-spacing: 0; font-weight: 400; display: block; margin-top: 2px; }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 15px; font-family: var(--body); color: var(--text); background: var(--surface-2);
+      transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; appearance: none;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,87,184,0.1); }
+
+    .flatpickr-input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 15px; font-family: var(--body); color: var(--text); background: var(--surface-2);
+      transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; appearance: none;
+      cursor: pointer;
+    }
+    .flatpickr-input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,87,184,0.1); }
+    .flatpickr-calendar { font-family: var(--body); }
+    .flatpickr-day.selected, .flatpickr-day.selected:hover { background: var(--blue); border-color: var(--blue); }
+    .flatpickr-day:hover { background: #e8f0fc; }
+
+    .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill-label { display: flex; align-items: center; gap: 7px; padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 100px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); transition: all 0.2s; background: var(--surface-2); user-select: none; }
+    .pill-label input[type=radio] { display: none; }
+    .pill-label:hover { border-color: var(--blue); color: var(--blue); }
+    .pill-label.active { border-color: var(--blue); background: #e8f0fc; color: var(--blue); font-weight: 600; }
+    .pill-dot { width: 8px; height: 8px; border-radius: 50%; border: 2px solid currentColor; }
+    .pill-label.active .pill-dot { background: var(--blue); }
+
+    .cert-block { border: 1.5px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; background: var(--surface-2); transition: border-color 0.2s; }
+    .cert-block:focus-within { border-color: var(--blue); }
+    .cert-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .cert-block-title { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 0.1em; }
+    .btn-remove { background: none; border: none; cursor: pointer; color: var(--red); font-size: 18px; padding: 2px 6px; border-radius: 4px; transition: background 0.2s; line-height: 1; }
+    .btn-remove:hover { background: #fdecea; }
+    .btn-add-cert { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border: 1.5px dashed var(--border); border-radius: 8px; background: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--blue); transition: all 0.2s; width: 100%; justify-content: center; margin-top: 4px; }
+    .btn-add-cert:hover { border-color: var(--blue); background: #e8f0fc; }
+
+    .cert-ignored-badge { display: inline-block; background: #fdecea; color: var(--red); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; font-family: var(--mono); letter-spacing: 0.06em; margin-left: 8px; }
+    .btn-force-cert { display: inline-block; background: var(--yellow-soft); color: #b07a00; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; font-family: var(--mono); letter-spacing: 0.06em; margin-left: 8px; cursor: pointer; border: 1px solid #f0d060; transition: all 0.2s; }
+    .btn-force-cert:hover { background: #f0d060; color: var(--text); }
+
+    .action-buttons { display: flex; gap: 12px; margin-top: 8px; }
+    .btn-calc { flex: 1; padding: 18px; background: var(--blue); color: white; border: none; border-radius: 10px; font-family: var(--display); font-size: 16px; font-weight: 700; cursor: pointer; letter-spacing: 0.04em; transition: transform 0.15s, box-shadow 0.15s, background 0.2s; }
+    .btn-calc:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,87,184,0.3); }
+    .btn-calc:active { transform: translateY(0); }
+    .btn-clear { padding: 18px 24px; background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); border-radius: 10px; font-family: var(--body); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-clear:hover { background: #fdecea; color: var(--red); border-color: #ffc8c8; }
+
+    .btn-print { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--surface); color: var(--text); border: 1.5px solid var(--border); border-radius: 8px; font-family: var(--body); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 20px; margin-right: 10px; }
+    .btn-print:hover { background: var(--surface-2); border-color: var(--blue); color: var(--blue); }
+
+    .btn-copy { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #eef3ff; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 8px; font-family: var(--body); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 20px; margin-right: 10px; }
+    .btn-copy:hover { background: var(--blue); color: white; }
+
+    .btn-share { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--green-light); color: var(--green); border: 1.5px solid var(--green); border-radius: 8px; font-family: var(--body); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 20px; margin-left: 10px; }
+    .btn-share:hover { background: var(--green-light); opacity: 0.8; }
+
+    .btn-no-coeff { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--yellow-soft); color: #b07a00; border: 1.5px solid #f0d060; border-radius: 8px; font-family: var(--body); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 20px; margin-left: 10px; }
+    .btn-no-coeff:hover { background: #f0d060; color: var(--text); }
+
+    #results { display: none; }
+    .result-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media(max-width:540px){ .result-summary { grid-template-columns: 1fr; } }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+    .stat-card.primary { background: var(--blue); border-color: var(--blue-dark); grid-column: 1 / -1; }
+    .stat-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .stat-card.primary .stat-label { color: rgba(255,255,255,0.6); }
+    .stat-value { font-family: var(--display); font-size: clamp(26px, 5vw, 38px); font-weight: 900; color: var(--text); line-height: 1; }
+    .stat-card.primary .stat-value { color: white; }
+    .stat-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+    .stat-card.primary .stat-sub { color: rgba(255,255,255,0.6); }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 620px; }
+    thead th { background: var(--blue); color: white; padding: 12px 14px; text-align: left; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+    thead th:last-child { text-align: right; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface-2); }
+    tbody td { padding: 12px 14px; vertical-align: top; }
+    tbody td:last-child { text-align: right; font-family: var(--mono); font-weight: 600; }
+    .td-date { font-family: var(--mono); font-size: 13px; white-space: nowrap; color: var(--text-muted); }
+    .td-reason { color: var(--text); line-height: 1.5; }
+    .td-detail { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.7; }
+    .td-total { font-size: 15px; color: var(--blue); }
+    .td-change { font-size: 12px; white-space: nowrap; }
+    .change-pos { color: var(--green); font-weight: 600; }
+    .change-neg { color: var(--red); font-weight: 600; }
+
+    tr.row-index { background: #fff8e0; }
+    tr.row-index:hover { background: #fff3cc; }
+    tr.row-allowance { background: var(--green-light); }
+    tr.row-allowance:hover { background: #d4f0e3; }
+    tr.row-recalc { background: #eef3ff; }
+    tr.row-recalc:hover { background: #dde8ff; }
+    tr.row-ignored { background: #fff0f0; opacity: 0.75; }
+    tr.row-ignored:hover { background: #ffe8e8; opacity: 1; }
+    tr.row-forced { background: #fff8e0; border-left: 4px solid #f0d060; }
+    tr.row-final { background: var(--blue); }
+    tr.row-final td { color: white; }
+    tr.row-final .td-total { color: white; font-size: 17px; }
+    tr.row-final .td-date { color: rgba(255,255,255,0.7); }
+    tr.row-final .td-detail { color: rgba(255,255,255,0.6); }
+    tr.row-final:hover { background: var(--blue-dark); }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 14px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .ld-cert { background: #eef3ff; border: 1px solid #b8cbff; }
+    .ld-allow { background: #e6f7f0; border: 1px solid #7dd9b0; }
+    .ld-idx { background: #fff8e0; border: 1px solid #f0d060; }
+    .ld-lw { background: #f7f9fc; border: 1px solid #d1dae8; }
+    .ld-skip { background: #fff0f0; border: 1px solid #f5b8b8; }
+    .ld-force { background: #fff8e0; border: 1px solid #f0d060; background: linear-gradient(135deg, #fff8e0 0%, #fff0c0 100%); }
+
+    .notice { display: flex; gap: 12px; padding: 16px 18px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.7; }
+    .notice-info { background: #e8f0fc; border-left: 3px solid var(--blue); }
+    .notice-warn { background: var(--yellow-soft); border-left: 3px solid var(--yellow); }
+    .notice-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+    .section-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+    .calculation-date { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-align: right; margin-bottom: 16px; }
+
+    .explanation-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-top: 20px; font-size: 14px; line-height: 1.8; }
+    .explanation-box h4 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+    .rule-ok { color: var(--green); }
+    .rule-skip { color: var(--red); }
+    .rule-warn { color: #b07a00; }
+
+    .force-cert-panel { background: var(--yellow-soft); border-radius: 8px; padding: 16px; margin-top: 16px; border-left: 4px solid #f0d060; }
+    .force-cert-panel h5 { font-family: var(--mono); font-size: 12px; margin-bottom: 10px; color: #b07a00; }
+
+    footer { text-align: center; padding: 24px; font-size: 13px; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 40px; }
+    .ua-flag { display: inline-block; width: 20px; height: 13px; background: linear-gradient(to bottom, #0057b8 50%, #ffd700 50%); border-radius: 2px; vertical-align: middle; margin: 0 6px; }
+
+    @media print {
+      header, .card:not(#results .card), .action-buttons, .btn-print, .btn-copy, .btn-share, .btn-no-coeff, .btn-force-cert, .force-cert-panel { display: none !important; }
+      #results { display: block !important; }
+      body { background: white; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-label">Адвокат · Дмитро Лапоша · Київ</div>
+    <h1>Калькулятор військової пенсії</h1>
+    <p class="header-sub">Розрахунок розміру пенсії за роками з урахуванням індексацій, доплат, надбавок та змін прожиткового мінімуму</p>
+    <div class="phones">
+      <a href="tel:+380952347574" class="phone-link">📞 095 234 75 74</a>
+      <a href="tel:+380932347574" class="phone-link">📞 093 234 75 74</a>
+      <a href="tel:+380682347574" class="phone-link">📞 068 234 75 74</a>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- КРОК 01 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-step">КРОК 01</span>
+      <span class="card-title">Довідки про грошове забезпечення</span>
+    </div>
+    <div class="card-body">
+      <div class="notice notice-info">
+        <span class="notice-icon">ℹ️</span>
+        <div>
+          <strong>Важливо знати:</strong>
+          <ul style="margin: 6px 0 0 18px; line-height: 1.9;">
+            <li>Перерахунок пенсії здійснюється з <strong>1-го числа місяця, наступного після дати довідки</strong>.</li>
+            <li>Доплата 2 000 грн (постанова №713) застосовується <strong>лише якщо довідка видана станом до 01.01.2020</strong>.</li>
+            <li>Від дати довідки залежить застосування індексацій за відповідні роки (2022-2026).</li>
+            <li>Якщо перерахунок за новою довідкою є меншим, ніж накопичені індексації — нова довідка <strong>не враховується автоматично</strong>, але ви можете примусово її застосувати за допомогою кнопки "Застосувати невигідну довідку".</li>
+          </ul>
+        </div>
+      </div>
+      <div id="certBlocks"></div>
+      <button class="btn-add-cert" id="btnAddCert">＋ Додати ще одну довідку</button>
+    </div>
+  </div>
+
+  <!-- КРОК 02 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-step">КРОК 02</span>
+      <span class="card-title">Статус та надбавки</span>
+    </div>
+    <div class="card-body">
+
+      <div class="form-group">
+        <label>Статус (надбавка від прожиткового мінімуму + фіксована)
+          <span class="label-hint">Ч. 4 ст. 13 ЗУ «Про статус ветеранів війни»; абз. 3 ст. 1 ЗУ «Про поліпшення матеріального становища учасників бойових дій»</span>
+        </label>
+        <div class="pill-group" id="warStatusGroup">
+          <label class="pill-label active"><input type="radio" name="warStatus" value="none" checked><span class="pill-dot"></span>Без статусу</label>
+          <label class="pill-label"><input type="radio" name="warStatus" value="ubd"><span class="pill-dot"></span>УБД (25% ПМ + 40 грн)</label>
+          <label class="pill-label"><input type="radio" name="warStatus" value="inv1"><span class="pill-dot"></span>Інвалід I гр. (50% ПМ + 50 грн)</label>
+          <label class="pill-label"><input type="radio" name="warStatus" value="inv2"><span class="pill-dot"></span>Інвалід II гр. (40% ПМ + 50 грн)</label>
+          <label class="pill-label"><input type="radio" name="warStatus" value="inv3"><span class="pill-dot"></span>Інвалід III гр. (30% ПМ + 50 грн)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Збільшення основного розміру пенсії як інваліду війни
+          <span class="label-hint">+25% від основного розміру пенсії. Ця сума також включається до бази для розрахунку індексацій.</span>
+        </label>
+        <div class="pill-group" id="baseBoostGroup">
+          <label class="pill-label active"><input type="radio" name="baseBoost" value="0" checked><span class="pill-dot"></span>Немає</label>
+          <label class="pill-label"><input type="radio" name="baseBoost" value="0.25"><span class="pill-dot"></span>+25% від основного розміру</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Надбавка за особливі заслуги (ордени) — % від ПМ
+          <span class="label-hint">ЗУ «Про пенсії за особливі заслуги перед Україною», наказ Мінсоцполітики № 2054 від 27.12.2017</span>
+        </label>
+        <div class="pill-group" id="meritGroup">
+          <label class="pill-label active"><input type="radio" name="merit" value="0" checked><span class="pill-dot"></span>Немає</label>
+          <label class="pill-label"><input type="radio" name="merit" value="23"><span class="pill-dot"></span>23% ПМ</label>
+          <label class="pill-label"><input type="radio" name="merit" value="24"><span class="pill-dot"></span>24% ПМ</label>
+          <label class="pill-label"><input type="radio" name="merit" value="25"><span class="pill-dot"></span>25% ПМ</label>
+          <label class="pill-label"><input type="radio" name="merit" value="other"><span class="pill-dot"></span>Інший %</label>
+        </div>
+        <div id="meritCustomWrap" style="display:none; margin-top:10px;">
+          <input type="number" id="meritCustom" placeholder="Введіть % від ПМ" min="0" max="100" step="0.1">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Додаткова фіксована надбавка (грн)
+          <span class="label-hint">Фіксована сума, що не входить до статусних надбавок вище</span>
+        </label>
+        <input type="number" id="fixedExtra" value="0" min="0" step="1">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- КРОК 03 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-step">КРОК 03</span>
+      <span class="card-title">Індексації та обмеження</span>
+    </div>
+    <div class="card-body">
+      <div class="notice notice-warn">
+        <span class="notice-icon">⚠️</span>
+        <div>
+          <strong>Правила застосування індексацій:</strong><br>
+          • Індексація застосовується якщо довідка видана до 01.01.відповідного року<br>
+          • <strong>2022 (+14%)</strong> — постанова №118. Застосовується якщо довідка видана до 01.01.2022<br>
+          • <strong>2023 (+19,7%)</strong> — постанова №168. База: пенсія × 1,14 (compound)<br>
+          • <strong>2024 (+7,96%)</strong> — постанова №185. База: compound від попередніх<br>
+          • <strong>2025 (+11,5%)</strong> — постанова №209. База: compound від попередніх<br>
+          • <strong>2026 (+12,1%)</strong> — постанова №210. База: compound від попередніх<br>
+          • Обмеження <strong>1 500 грн</strong> кожної індексації окремо діє з 2022 р.<br>
+          • З 2025 року діють <strong>прогресивні коефіцієнти</strong> для сум понад 10 ПМ (постанови №1 та №1778). Кнопка "Без застосування коефіцієнтів" вимикає їх.
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Обмеження кожної індексації до 1 500 грн</label>
+        <div class="pill-group" id="capGroup">
+          <label class="pill-label active"><input type="radio" name="applyCap" value="yes" checked><span class="pill-dot"></span>Застосовувати</label>
+          <label class="pill-label"><input type="radio" name="applyCap" value="no"><span class="pill-dot"></span>Не застосовувати</label>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:16px;">
+        <label>Максимальний розмір пенсії (10 прожиткових мінімумів)
+          <span class="label-hint">Відповідно до ст. 43 ЗУ № 2262-XII. Вимкніть щоб побачити суму «як має бути» без обмеження. Для 2025-2026 застосовуються прогресивні коефіцієнти.</span>
+        </label>
+        <div class="pill-group" id="maxCapGroup">
+          <label class="pill-label active"><input type="radio" name="applyMaxCap" value="yes" checked><span class="pill-dot"></span>Застосовувати (обмеження)</label>
+          <label class="pill-label"><input type="radio" name="applyMaxCap" value="no"><span class="pill-dot"></span>Не застосовувати</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <button class="btn-clear" id="btnClear">Очистити</button>
+    <button class="btn-calc" id="btnCalc">⚙ РОЗРАХУВАТИ РОЗМІР ПЕНСІЇ ЗА РОКАМИ</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div style="height:32px"></div>
+    <div class="section-label">Результати розрахунку</div>
+    <div class="calculation-date" id="calculationDate"></div>
+    <div class="result-summary" id="resultSummary"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-step">ТАБЛИЦЯ</span>
+        <span class="card-title">Розрахунок розміру пенсії за роками</span>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Підстава підвищення</th>
+                <th>Зміна</th>
+                <th>Розмір пенсії</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot ld-cert"></div>Перерахунок за довідкою</div>
+          <div class="legend-item"><div class="legend-dot ld-allow"></div>Доплата №713</div>
+          <div class="legend-item"><div class="legend-dot ld-idx"></div>Індексація</div>
+          <div class="legend-item"><div class="legend-dot ld-lw"></div>Зміна прожиткового мінімуму</div>
+          <div class="legend-item"><div class="legend-dot ld-skip"></div>Довідка не врахована</div>
+          <div class="legend-item"><div class="legend-dot ld-force"></div>Примусово застосована</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Панель для примусового застосування невигідної довідки -->
+    <div id="forceCertPanel" class="force-cert-panel" style="display: none;">
+      <h5>🔧 Примусове застосування довідки</h5>
+      <p id="forceCertMessage"></p>
+      <button class="btn-force-cert" id="btnForceCert">✓ Застосувати невигідну довідку</button>
+    </div>
+
+    <div class="explanation-box" id="explanationBox"></div>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
+      <button class="btn-print" onclick="window.print()">🖨 Роздрукувати</button>
+      <button class="btn-copy" id="btnCopyTable">📋 Скопіювати таблицю у Word</button>
+      <button class="btn-no-coeff" id="btnNoCoeff">🔄 Без застосування коефіцієнтів 2025-2026</button>
+      <button class="btn-share" id="btnShare">🔗 Поділитися посиланням</button>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>Адвокат Дмитро Лапоша <span class="ua-flag"></span> Захищаємо права військовослужбовців та пенсіонерів України</p>
+  <p style="margin-top:6px">© 2026 · Калькулятор військової пенсії</p>
+</footer>
+
+<!-- Flatpickr + Ukrainian locale -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/uk.js"></script>
+
+<script>
+// ============================================================
+// ПРОЖИТКОВИЙ МІНІМУМ для ОСІБ, ЯКІ ВТРАТИЛИ ПРАЦЕЗДАТНІСТЬ
+// ============================================================
+const LIVING_WAGES = [
+  { from: '2018-12-01', value: 1497 },
+  { from: '2019-07-01', value: 1564 },
+  { from: '2019-12-01', value: 1638 },
+  { from: '2020-07-01', value: 1712 },
+  { from: '2020-12-01', value: 1769 },
+  { from: '2021-07-01', value: 1854 },
+  { from: '2021-12-01', value: 1934 },
+  { from: '2022-07-01', value: 2027 },
+  { from: '2022-12-01', value: 2093 },
+  { from: '2023-01-01', value: 2093 },
+  { from: '2024-01-01', value: 2361 },
+  { from: '2025-01-01', value: 2361 },
+  { from: '2026-01-01', value: 2595 },
+];
+
+// ============================================================
+// ІНДЕКСАЦІЇ (постанови КМУ) 2022-2026
+// ============================================================
+const INDEXATIONS = [
+  { type: 'index2022', date: new Date('2022-03-01'), coeff: 0.14, cap: 1500, cutoff: new Date('2022-01-01'), label: 'Індексація 2022 (+14%), постанова КМУ від 16.02.2022 № 118' },
+  { type: 'index2023', date: new Date('2023-03-01'), coeff: 0.197, cap: 1500, cutoff: new Date('2023-01-01'), label: 'Індексація 2023 (+19,7%), постанова КМУ від 24.02.2023 № 168' },
+  { type: 'index2024', date: new Date('2024-03-01'), coeff: 0.0796, cap: 1500, cutoff: new Date('2024-01-01'), label: 'Індексація 2024 (+7,96%), постанова КМУ від 23.02.2024 № 185' },
+  { type: 'index2025', date: new Date('2025-03-01'), coeff: 0.115, cap: 1500, cutoff: new Date('2025-01-01'), label: 'Індексація 2025 (+11,5%), постанова КМУ від 25.02.2025 № 209' },
+  { type: 'index2026', date: new Date('2026-03-01'), coeff: 0.121, cap: 1500, cutoff: new Date('2026-01-01'), label: 'Індексація 2026 (+12,1%), постанова КМУ від 13.02.2026 № 210' },
+];
+
+// Доплата №713: лише якщо довідка станом ДО 01.01.2020
+const ALLOWANCE_713_CUTOFF = new Date('2020-01-01');
+const ALLOWANCE_713_DATE = new Date('2021-07-01');
+
+// ============================================================
+// Прогресивні коефіцієнти для обмеження понад 10 ПМ (воєнний стан 2025-2026)
+// ============================================================
+const PROGRESSIVE_CAPS = {
+  2025: {
+    ranges: [
+      { min: 10, max: 11, coeff: 0.5 },
+      { min: 11, max: 13, coeff: 0.4 },
+      { min: 13, max: 17, coeff: 0.3 },
+      { min: 17, max: 21, coeff: 0.2 },
+      { min: 21, max: Infinity, coeff: 0.1 },
+    ],
+    postanova: 'постанова КМУ від 3 січня 2025 р. № 1',
+  },
+  2026: {
+    ranges: [
+      { min: 10, max: 11, coeff: 0.5 },
+      { min: 11, max: 13, coeff: 0.4 },
+      { min: 13, max: 17, coeff: 0.3 },
+      { min: 17, max: 21, coeff: 0.2 },
+      { min: 21, max: Infinity, coeff: 0.1 },
+    ],
+    postanova: 'постанова КМУ від 30 грудня 2025 р. № 1778',
+  },
+};
+
+// Глобальні змінні
+let forceApplyIgnoredCert = false;
+let ignoredCertData = null;
+let disableProgressiveCoeff = false; // Нова змінна для вимкнення прогресивних коефіцієнтів
+
+// ============================================================
+// CERT BLOCKS UI
+// ============================================================
+let certCount = 0;
+const flatpickrInstances = {};
+
+function initFlatpickr(elementId, defaultDate = null) {
+  if (flatpickrInstances[elementId]) {
+    flatpickrInstances[elementId].destroy();
+  }
+  flatpickrInstances[elementId] = flatpickr(`#${elementId}`, {
+    locale: 'uk',
+    dateFormat: 'Y-m-d',
+    defaultDate: defaultDate,
+    disableMobile: true,
+    allowInput: false,
+    maxDate: 'today',
+    onReady(_, __, fp) {
+      fp.calendarContainer.style.fontFamily = "var(--body, 'Inter', sans-serif)";
+    },
+  });
+}
+
+function addCertBlock(defaults = {}) {
+  certCount++;
+  const id = certCount;
+  const div = document.createElement('div');
+  div.className = 'cert-block';
+  div.id = `cert-${id}`;
+  div.innerHTML = `
+    <div class="cert-block-header">
+      <span class="cert-block-title">Довідка №${id}</span>
+      ${id > 1 ? `<button class="btn-remove" onclick="removeCert(${id})" title="Видалити довідку">✕</button>` : ''}
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Довідка станом на дату
+          <span class="label-hint">Дата, якою визначений розмір ГЗ у довідці</span>
+        </label>
+        <input type="text" id="certDate-${id}" class="flatpickr-input" placeholder="Оберіть дату" readonly>
+      </div>
+      <div class="form-group">
+        <label>Грошове забезпечення (грн)</label>
+        <input type="number" id="certSalary-${id}" value="${defaults.salary || ''}" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Відсоток пенсії від ГЗ (%)</label>
+        <input type="number" id="certPercent-${id}" value="${defaults.percent || '80'}" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label>Номер довідки та дата видання (необов'язково)</label>
+        <input type="text" id="certNote-${id}" placeholder="напр. №123 від 01.10.2020" value="${defaults.note || ''}">
+      </div>
+    </div>
+  `;
+  document.getElementById('certBlocks').appendChild(div);
+ 
+  // Initialize Flatpickr
+  initFlatpickr(`certDate-${id}`, defaults.date || null);
+}
+
+function removeCert(id) {
+  if (flatpickrInstances[`certDate-${id}`]) {
+    flatpickrInstances[`certDate-${id}`].destroy();
+    delete flatpickrInstances[`certDate-${id}`];
+  }
+  document.getElementById(`cert-${id}`)?.remove();
+}
+
+document.getElementById('btnAddCert').addEventListener('click', () => addCertBlock());
+
+// Pill group activation
+document.querySelectorAll('.pill-group').forEach(group => {
+  group.addEventListener('click', e => {
+    const label = e.target.closest('.pill-label');
+    if (!label) return;
+    group.querySelectorAll('.pill-label').forEach(l => l.classList.remove('active'));
+    label.classList.add('active');
+    const radio = label.querySelector('input[type=radio]');
+    if (radio?.name === 'merit') {
+      document.getElementById('meritCustomWrap').style.display = radio.value === 'other' ? 'block' : 'none';
+    }
+  });
+});
+
+// ============================================================
+// STATE PERSISTENCE (localStorage) and URL Sharing
+// ============================================================
+function saveState() {
+  try {
+    const rawCerts = [];
+    document.querySelectorAll('.cert-block').forEach(b => {
+      const id = b.id.replace('cert-','');
+      rawCerts.push({
+        date: document.getElementById(`certDate-${id}`).value,
+        salary: document.getElementById(`certSalary-${id}`).value,
+        percent: document.getElementById(`certPercent-${id}`).value,
+        note: document.getElementById(`certNote-${id}`).value,
+      });
+    });
+    const st = {
+      warStatus: document.querySelector('input[name=warStatus]:checked')?.value,
+      baseBoost: document.querySelector('input[name=baseBoost]:checked')?.value,
+      meritRadio: document.querySelector('input[name=merit]:checked')?.value,
+      meritCustom: document.getElementById('meritCustom').value,
+      fixedExtra: document.getElementById('fixedExtra').value,
+      applyCap: document.querySelector('input[name=applyCap]:checked')?.value,
+      applyMaxCap: document.querySelector('input[name=applyMaxCap]:checked')?.value,
+    };
+    localStorage.setItem('pensionCalc_v6', JSON.stringify({ certs: rawCerts, status: st }));
+  } catch(e) {}
+}
+
+function restoreState() {
+  // First, check URL params for shared link
+  const params = new URLSearchParams(window.location.search);
+  const shared = params.get('state');
+  let saved = null;
+ 
+  if (shared) {
+    try {
+      saved = JSON.parse(atob(shared));
+    } catch(e) { console.error('Invalid shared link'); }
+  } else {
+    try { saved = JSON.parse(localStorage.getItem('pensionCalc_v6')); } catch(e) {}
+  }
+ 
+  if (saved?.certs?.length) {
+    document.getElementById('certBlocks').innerHTML = '';
+    certCount = 0;
+    saved.certs.forEach(c => addCertBlock(c));
+   
+    const setRadio = (name, val) => {
+      const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+      if (!el) return;
+      el.checked = true;
+      const grp = el.closest('.pill-group');
+      grp?.querySelectorAll('.pill-label').forEach(l => l.classList.remove('active'));
+      el.closest('.pill-label')?.classList.add('active');
+    };
+   
+    const s = saved.status || {};
+    if (s.warStatus) setRadio('warStatus', s.warStatus);
+    if (s.baseBoost) setRadio('baseBoost', s.baseBoost);
+    if (s.meritRadio) {
+      setRadio('merit', s.meritRadio);
+      document.getElementById('meritCustomWrap').style.display = s.meritRadio === 'other' ? 'block' : 'none';
+    }
+    if (s.applyCap) setRadio('applyCap', s.applyCap);
+    if (s.applyMaxCap) setRadio('applyMaxCap', s.applyMaxCap);
+    document.getElementById('meritCustom').value = s.meritCustom || '';
+    document.getElementById('fixedExtra').value = s.fixedExtra || '0';
+  } else {
+    // Empty default
+    addCertBlock({ percent: '80' });
+  }
+}
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  if (confirm('Очистити всі введені дані?')) {
+    localStorage.removeItem('pensionCalc_v6');
+    location.reload();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', restoreState);
+
+// ============================================================
+// Кнопка вимкнення прогресивних коефіцієнтів
+// ============================================================
+document.getElementById('btnNoCoeff')?.addEventListener('click', () => {
+  disableProgressiveCoeff = !disableProgressiveCoeff;
+  const btn = document.getElementById('btnNoCoeff');
+  if (disableProgressiveCoeff) {
+    btn.style.background = '#f0d060';
+    btn.style.color = '#b07a00';
+    btn.innerHTML = '✅ Прогресивні коефіцієнти вимкнено';
+  } else {
+    btn.style.background = 'var(--yellow-soft)';
+    btn.style.color = '#b07a00';
+    btn.innerHTML = '🔄 Без застосування коефіцієнтів 2025-2026';
+  }
+  calculate();
+});
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getLivingWage(date) {
+  let val = 1497;
+  for (const lw of LIVING_WAGES) {
+    if (date >= new Date(lw.from)) val = lw.value;
+    else break;
+  }
+  return val;
+}
+
+function fmtN(n) {
+  const parts = Math.abs(n).toFixed(2).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f');
+  return (n < 0 ? '\u2212' : '') + parts.join(',');
+}
+function uah(n) { return fmtN(n) + '\u202fгрн'; }
+function fmtDate(d) {
+  return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+}
+function firstOfNextMonth(d) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 1);
+}
+
+// ============================================================
+// READ INPUTS
+// ============================================================
+function readCerts() {
+  const certs = [];
+  document.querySelectorAll('.cert-block').forEach(block => {
+    const id = block.id.replace('cert-','');
+    const dv = document.getElementById(`certDate-${id}`).value;
+    const sal = parseFloat(document.getElementById(`certSalary-${id}`).value);
+    const pct = parseFloat(document.getElementById(`certPercent-${id}`).value);
+    const nt = document.getElementById(`certNote-${id}`)?.value || '';
+    if (dv && !isNaN(sal) && sal > 0 && !isNaN(pct) && pct >= 0) {
+      const dd = new Date(dv);
+      certs.push({
+        docDate: dd,
+        effectDate: firstOfNextMonth(dd),
+        salary: sal, percent: pct, note: nt,
+        basePension: sal * pct / 100,
+      });
+    }
+  });
+  return certs.sort((a,b) => a.effectDate - b.effectDate);
+}
+
+function readStatus() {
+  return {
+    warStatus: document.querySelector('input[name=warStatus]:checked')?.value || 'none',
+    baseBoost: parseFloat(document.querySelector('input[name=baseBoost]:checked')?.value || 0),
+    meritRadio: document.querySelector('input[name=merit]:checked')?.value || '0',
+    meritCustom: parseFloat(document.getElementById('meritCustom').value) || 0,
+    fixedExtra: parseFloat(document.getElementById('fixedExtra').value) || 0,
+    applyCap: document.querySelector('input[name=applyCap]:checked')?.value === 'yes',
+    applyMaxCap: document.querySelector('input[name=applyMaxCap]:checked')?.value === 'yes',
+  };
+}
+
+const WAR_PCT = { ubd:0.25, inv1:0.50, inv2:0.40, inv3:0.30 };
+const WAR_FIXED = { ubd:40, inv1:50, inv2:50, inv3:50 };
+function getWarPct(ws) { return WAR_PCT[ws] || 0; }
+function getWarFixed(ws) { return WAR_FIXED[ws] || 0; }
+function getMeritPct(st) { return st.meritRadio === 'other' ? st.meritCustom/100 : parseFloat(st.meritRadio)/100; }
+
+// ============================================================
+// Функція застосування прогресивного обмеження (ВИПРАВЛЕНО)
+// ============================================================
+function applyProgressiveCap(rawTotal, pm, year, applyMaxCap) {
+  if (!applyMaxCap) return { total: rawTotal, capped: false };
+ 
+  const basePM = pm * 10; // 10 ПМ - базовий поріг
+  let excess = rawTotal - basePM;
+ 
+  if (excess <= 0) return { total: rawTotal, capped: false };
+ 
+  // Якщо прогресивні коефіцієнти вимкнені або рік не 2025/2026 - просте зрізання
+  const config = disableProgressiveCoeff ? null : PROGRESSIVE_CAPS[year];
+ 
+  if (!config) {
+    // Для років без прогресивних коефіцієнтів або якщо вони вимкнені - просте зрізання до 10 ПМ
+    return {
+      total: basePM,
+      capped: true,
+      ceiling: basePM,
+      rule: 'Просте обмеження до 10 ПМ (ст. 43)'
+    };
+  }
+ 
+  let adjustedExcess = 0;
+  let remainingExcess = excess;
+  const rangesApplied = [];
+ 
+  for (const range of config.ranges) {
+    const rangeMin = range.min * pm;
+    const rangeMax = range.max === Infinity ? Infinity : range.max * pm;
+    const rangeSize = rangeMax - rangeMin;
+    const rangeExcess = Math.min(remainingExcess, rangeSize);
+   
+    if (rangeExcess > 0) {
+      adjustedExcess += rangeExcess * range.coeff;
+      remainingExcess -= rangeExcess;
+      rangesApplied.push(`від ${range.min} до ${range.max === Infinity ? '∞' : range.max} ПМ × ${range.coeff}`);
+    }
+    if (remainingExcess <= 0) break;
+  }
+ 
+  const total = basePM + adjustedExcess;
+ 
+  return {
+    total,
+    capped: true,
+    adjusted: true,
+    rule: `Прогресивне обмеження (${config.postanova})`,
+    rangesApplied: rangesApplied.join('; ')
+  };
+}
+
+// ============================================================
+// CALCULATE
+// ============================================================
+function calculate() {
+  saveState();
+
+  const certs = readCerts();
+  if (!certs.length) { alert('Будь ласка, введіть дані принаймні однієї довідки.'); return; }
+
+  // Basic validation
+  for (let i = 0; i < certs.length; i++) {
+    const c = certs[i];
+    if (c.percent > 100) { alert(`Довідка ${i+1}: відсоток пенсії не може перевищувати 100%.`); return; }
+    if (c.salary > 1000000) { alert(`Довідка ${i+1}: сума ГЗ виглядає некоректною.`); return; }
+  }
+
+  const st = readStatus();
+  const warPct = getWarPct(st.warStatus);
+  const warFixed = getWarFixed(st.warStatus);
+  const mPct = getMeritPct(st);
+  const exFixed = st.fixedExtra;
+
+  // ---- mutable state ----
+  let currentBase = 0;
+  let baseBoostAmt = 0;
+  let allow713 = 0;
+  let activeCertDocDate = null;
+  let indexBasePension = null;
+  const idxPaid = {};
+
+  const rows = [];
+  const warnings = [];
+  const startDate = certs[0].effectDate;
+
+  // Скидаємо стан примусового застосування
+  forceApplyIgnoredCert = false;
+  ignoredCertData = null;
+  document.getElementById('forceCertPanel').style.display = 'none';
+
+  // ---- build event list ----
+  const events = [];
+  certs.forEach(c => events.push({ date: c.effectDate, type: 'cert', cert: c }));
+  LIVING_WAGES.forEach(lw => {
+    const d = new Date(lw.from);
+    if (d >= startDate) events.push({ date: d, type: 'lw', value: lw.value });
+  });
+  if (certs.some(c => c.docDate < ALLOWANCE_713_CUTOFF) && ALLOWANCE_713_DATE >= startDate) {
+    events.push({ date: ALLOWANCE_713_DATE, type: 'allow713' });
+  }
+  INDEXATIONS.forEach(idx => {
+    if (idx.date >= startDate) events.push({ date: idx.date, type: 'idx', idx });
+  });
+
+  const ORDER = { cert:0, lw:1, allow713:2, idx:3 };
+  events.sort((a,b) => {
+    const dt = a.date - b.date;
+    return dt !== 0 ? dt : (ORDER[a.type]||9) - (ORDER[b.type]||9);
+  });
+
+  // ---- helpers ----
+  function sumIdxPaid() { return Object.values(idxPaid).reduce((s,v) => s+v, 0); }
+
+  function computeRaw(pm) {
+    return currentBase + baseBoostAmt + pm*warPct + pm*mPct + warFixed + exFixed + allow713 + sumIdxPaid();
+  }
+
+  // ---- process events ----
+  for (const ev of events) {
+    const { date } = ev;
+    const pm = getLivingWage(date);
+    const year = date.getFullYear();
+    const prevTotal = rows.length ? rows[rows.length-1].total : 0;
+
+    if (ev.type === 'cert') {
+      const { cert } = ev;
+      activeCertDocDate = cert.docDate;
+
+      const newBase = cert.basePension;
+      const newBoost = newBase * st.baseBoost;
+      const newRawTotal = newBase + newBoost + pm*warPct + pm*mPct + warFixed + exFixed + allow713 + sumIdxPaid();
+
+      // If this is NOT the first cert, check if new cert is beneficial
+      if (rows.length > 0) {
+        if (prevTotal >= newRawTotal && !forceApplyIgnoredCert) {
+          // New cert is NOT beneficial — skip it
+          const details = [
+            `<span style="color:var(--red);">Перерахунок за новою довідкою: ${uah(newRawTotal)}</span>`,
+            `<span style="color:var(--green);">Поточна пенсія з індексаціями: ${uah(prevTotal)}</span>`,
+            `<strong style="color:var(--red);">Нова довідка не вигідна — автоматично пропущена.</strong>`,
+          ];
+          
+          rows.push({
+            date, type: 'ignored',
+            reason: `Довідка пропущена (${cert.note || fmtDate(cert.docDate)})`,
+            details: details.join('<br>'),
+            total: rows[rows.length-1].total,
+            change: 0,
+            ignoredCert: cert,
+          });
+          
+          warnings.push(`⚠️ Довідка станом на ${fmtDate(cert.docDate)}${cert.note ? ` (${cert.note})` : ''} — <strong>автоматично не врахована</strong>: перерахунок за нею (${uah(newRawTotal)}) є меншим, ніж поточний розмір пенсії з індексаціями (${uah(prevTotal)}). Ви можете примусово застосувати цю довідку за допомогою кнопки вище.`);
+         
+          // Показуємо панель для примусового застосування
+          document.getElementById('forceCertPanel').style.display = 'block';
+          document.getElementById('forceCertMessage').innerHTML = `
+            <strong>Невигідна довідка:</strong> ${cert.note || fmtDate(cert.docDate)}<br>
+            <strong>Поточний розмір:</strong> ${uah(prevTotal)}<br>
+            <strong>Розмір за новою довідкою:</strong> ${uah(newRawTotal)}<br>
+            <strong>Різниця:</strong> ${uah(prevTotal - newRawTotal)} менше
+          `;
+         
+          continue;
+        }
+      }
+
+      // New cert IS beneficial (or first cert) OR force apply
+      currentBase = cert.basePension;
+      baseBoostAmt = currentBase * st.baseBoost;
+
+      if (indexBasePension === null) {
+        indexBasePension = currentBase + baseBoostAmt;
+      }
+      if (cert.docDate >= ALLOWANCE_713_CUTOFF) allow713 = 0;
+
+      const rawTotal = computeRaw(pm);
+      const capResult = applyProgressiveCap(rawTotal, pm, year, st.applyMaxCap);
+      const total = capResult.total;
+
+      const details = [];
+      details.push(`${uah(currentBase)} — основна пенсія (${uah(cert.salary)}\u202f×\u202f${cert.percent}%)`);
+      if (baseBoostAmt > 0) details.push(`+\u202f${uah(baseBoostAmt)} — збільшення ${(st.baseBoost*100).toFixed(0)}% (інвалід війни)`);
+      if (warPct > 0) details.push(`+\u202f${uah(pm*warPct)} — ${(warPct*100).toFixed(0)}%\u202f×\u202fПМ\u202f${pm}\u202fгрн (статус)`);
+      if (mPct > 0) details.push(`+\u202f${uah(pm*mPct)} — ${(mPct*100).toFixed(0)}%\u202f×\u202fПМ\u202f${pm}\u202fгрн (особливі заслуги)`);
+      if (warFixed > 0) details.push(`+\u202f${warFixed}\u202fгрн — фіксована за статусом`);
+      if (exFixed > 0) details.push(`+\u202f${exFixed}\u202fгрн — додаткова фіксована`);
+      if (allow713 > 0) details.push(`+\u202f${uah(allow713)} — доплата постанова №713`);
+      Object.entries(idxPaid).forEach(([k,v]) => { if (v > 0) details.push(`+\u202f${uah(v)} — ${k.replace('index','індексація ')}`); });
+     
+      if (capResult.capped) {
+        if (capResult.adjusted) {
+          details.push(`<strong style="color:var(--red);">Прогресивне обмеження: ${uah(total)}</strong> <span style="color:var(--text-muted);">(без обмеження: ${uah(rawTotal)})</span>`);
+          details.push(`<span style="color:var(--text-muted); font-size:11px;">${capResult.rule}</span>`);
+        } else {
+          details.push(`<strong style="color:var(--red);">Обмежено максимумом 10 ПМ: ${uah(total)}</strong> <span style="color:var(--text-muted);">(без обмеження: ${uah(rawTotal)})</span>`);
+        }
+      }
+
+      const rowType = forceApplyIgnoredCert && rows.length > 0 ? 'forced' : 'cert';
+     
+      rows.push({
+        date, type: rowType,
+        reason: `Перерахунок на підставі довідки${cert.note ? ` (${cert.note})` : ''}${rowType === 'forced' ? ' (примусово)' : ''}`,
+        details: details.join('<br>'),
+        total,
+        change: rows.length ? total - prevTotal : total,
+      });
+
+    } else if (ev.type === 'lw') {
+      if (warPct === 0 && mPct === 0) continue;
+      const rawTotal = computeRaw(ev.value);
+      const capResult = applyProgressiveCap(rawTotal, ev.value, year, st.applyMaxCap);
+      const total = capResult.total;
+      if (total === prevTotal) continue;
+
+      const details = [];
+      if (warPct > 0) details.push(`${uah(ev.value*warPct)} (${ev.value}\u202f×\u202f${(warPct*100).toFixed(0)}% ПМ)`);
+      if (mPct > 0) details.push(`${uah(ev.value*mPct)} (${ev.value}\u202f×\u202f${(mPct*100).toFixed(0)}% ПМ)`);
+      if (capResult.capped) {
+        if (capResult.adjusted) {
+          details.push(`<span style="color:var(--red);">Прогресивне обмеження: ${uah(total)}</span>`);
+        } else {
+          details.push(`<span style="color:var(--red);">Обмежено 10 ПМ: ${uah(total)}</span>`);
+        }
+      }
+
+      rows.push({
+        date, type: 'lw',
+        reason: `Зміна прожиткового мінімуму до ${ev.value}\u202fгрн`,
+        details: details.join('<br>'),
+        total,
+        change: total - prevTotal,
+      });
+
+    } else if (ev.type === 'allow713') {
+      if (!activeCertDocDate || activeCertDocDate >= ALLOWANCE_713_CUTOFF) continue;
+      allow713 = 2000;
+      const rawTotal = computeRaw(pm);
+      const capResult = applyProgressiveCap(rawTotal, pm, year, st.applyMaxCap);
+      const total = capResult.total;
+     
+      const details = [`+\u202f${uah(2000)} — щомісячна доплата`];
+      if (capResult.capped) {
+        if (capResult.adjusted) {
+          details.push(`<span style="color:var(--red);">Прогресивне обмеження: ${uah(total)}</span>`);
+        } else {
+          details.push(`<span style="color:var(--red);">Обмежено 10 ПМ: ${uah(total)}</span>`);
+        }
+      }
+     
+      rows.push({
+        date, type: 'allowance',
+        reason: 'Встановлено доплату (постанова КМУ від 14.07.2021 № 713)',
+        details: details.join('<br>'),
+        total,
+        change: total - prevTotal,
+      });
+
+    } else if (ev.type === 'idx') {
+      const { idx } = ev;
+      if (!activeCertDocDate || activeCertDocDate >= idx.cutoff) continue;
+      if (!indexBasePension) continue;
+
+      let compoundBase = indexBasePension;
+      for (const prev of INDEXATIONS) {
+        if (prev.date >= idx.date) break;
+        compoundBase *= (1 + prev.coeff);
+      }
+
+      let rawAmt = compoundBase * idx.coeff;
+      let paidAmt = st.applyCap ? Math.min(rawAmt, idx.cap) : rawAmt;
+      idxPaid[idx.type] = paidAmt;
+
+      const rawTotal = computeRaw(pm);
+      const capResult = applyProgressiveCap(rawTotal, pm, year, st.applyMaxCap);
+      const total = capResult.total;
+
+      const capNote = st.applyCap && rawAmt > idx.cap ? `, обмежено до ${idx.cap}\u202fгрн` : '';
+      const coeffPct = (idx.coeff * 100).toFixed(2).replace(/\.?0+$/, '');
+      const details = [`+\u202f${uah(paidAmt)} (${uah(compoundBase)}\u202f×\u202f${coeffPct}%${capNote})`];
+     
+      if (capResult.capped) {
+        if (capResult.adjusted) {
+          details.push(`<span style="color:var(--red);">Прогресивне обмеження: ${uah(total)}</span>`);
+        } else {
+          details.push(`<span style="color:var(--red);">Обмежено 10 ПМ: ${uah(total)}</span>`);
+        }
+      }
+
+      rows.push({
+        date, type: 'index',
+        reason: idx.label,
+        details: details.join('<br>'),
+        total,
+        change: total - prevTotal,
+      });
+    }
+  }
+
+  renderResults(rows, certs, st, warnings);
+}
+
+// ============================================================
+// Примусове застосування невигідної довідки
+// ============================================================
+document.getElementById('btnForceCert')?.addEventListener('click', () => {
+  forceApplyIgnoredCert = true;
+  calculate();
+});
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderResults(rows, certs, st, warnings) {
+  if (!rows.length) { alert('Не вдалося розрахувати. Перевірте введені дані.'); return; }
+
+  const activeRows = rows.filter(r => r.type !== 'ignored');
+  const last = activeRows[activeRows.length - 1] || rows[rows.length - 1];
+  const first = activeRows[0] || rows[0];
+  const growth = last.total - first.total;
+  const growthPct = first.total > 0 ? growth / first.total * 100 : 0;
+
+  document.getElementById('resultSummary').innerHTML = `
+    <div class="stat-card primary">
+      <div class="stat-label">Поточний розмір пенсії</div>
+      <div class="stat-value">${fmtN(last.total)}\u202fгрн</div>
+      <div class="stat-sub">Станом на ${fmtDate(last.date)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Початковий розмір</div>
+      <div class="stat-value" style="font-size:clamp(20px,4vw,28px)">${fmtN(first.total)}\u202fгрн</div>
+      <div class="stat-sub">З ${fmtDate(first.date)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Загальний приріст</div>
+      <div class="stat-value" style="font-size:clamp(20px,4vw,28px);color:var(--green)">+${fmtN(growth)}\u202fгрн</div>
+      <div class="stat-sub">+${growthPct.toFixed(1)}% від початкового</div>
+    </div>
+  `;
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  rows.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    const isLast = i === rows.length - 1 && row.type !== 'ignored';
+
+    if (isLast) tr.className = 'row-final';
+    else if (row.type === 'ignored') tr.className = 'row-ignored';
+    else if (row.type === 'forced') tr.className = 'row-forced';
+    else if (row.type === 'index') tr.className = 'row-index';
+    else if (row.type === 'allowance') tr.className = 'row-allowance';
+    else if (row.type === 'cert' && i > 0) tr.className = 'row-recalc';
+
+    const sign = row.change > 0 ? '+' : row.change < 0 ? '' : '±';
+    const cls = row.change > 0 ? 'change-pos' : row.change < 0 ? 'change-neg' : 'change-pos';
+
+    const changeStr = row.change === 0 ? '—' : `${sign}${fmtN(row.change)}\u202fгрн`;
+    const totalStr = row.type === 'ignored' ? `<span style="color:var(--text-muted);font-size:13px;">не змінюється</span>` : `${fmtN(row.total)}\u202fгрн`;
+
+    tr.innerHTML = `
+      <td class="td-date">${fmtDate(row.date)}</td>
+      <td class="td-reason">
+        <div>${row.reason}${row.type === 'ignored' ? ' <span class="cert-ignored-badge">ПРОПУЩЕНО</span>' : ''}${row.type === 'forced' ? ' <span class="cert-ignored-badge" style="background: #f0d060; color: #b07a00;">ПРИМУСОВО</span>' : ''}</div>
+        <div class="td-detail">${row.details || ''}</div>
+      </td>
+      <td class="td-change"><span class="${cls}">${changeStr}</span></td>
+      <td class="td-total">${totalStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const certLines = certs.map((c,i) =>
+    `Довідка ${i+1}: станом на ${fmtDate(c.docDate)}${c.note ? ` (${c.note})` : ''} — ГЗ ${fmtN(c.salary)}\u202fгрн × ${c.percent}% = ${fmtN(c.basePension)}\u202fгрн`
+  ).join('<br>');
+
+  const ruleLines = [];
+  const hasBefore713 = certs.some(c => c.docDate < ALLOWANCE_713_CUTOFF);
+  ruleLines.push(hasBefore713
+    ? `<span class="rule-ok">✅ Доплата 2\u202f000\u202fгрн (постанова №713) застосовується з ${fmtDate(ALLOWANCE_713_DATE)} — довідка видана до 01.01.2020</span>`
+    : `<span class="rule-skip">❌ Доплата 2\u202f000\u202fгрн (постанова №713) — <strong>не застосовується</strong>: довідка видана станом після 01.01.2020</span>`
+  );
+
+  INDEXATIONS.forEach(idx => {
+    const eligibleCert = certs.find(c => c.docDate < idx.cutoff);
+    const applies = !!eligibleCert;
+    const year = idx.label.split(' ')[1];
+    ruleLines.push(applies
+      ? `<span class="rule-ok">✅ ${year} (${(idx.coeff*100).toFixed(2).replace(/\.?0+$/,'')}%) — застосовується</span>`
+      : `<span class="rule-skip">❌ ${year} — <strong>не застосовується</strong>: довідка видана після ${fmtDate(idx.cutoff)}</span>`
+    );
+  });
+
+  if (warnings.length) {
+    warnings.forEach(w => ruleLines.push(`<span class="rule-warn">${w}</span>`));
+  }
+
+  if (st.applyCap) ruleLines.push(`<span class="rule-warn">⚠️ Обмеження кожної індексації до 1\u202f500\u202fгрн — застосовується</span>`);
+ 
+  if (st.applyMaxCap) {
+    ruleLines.push(`<span class="rule-warn">⚠️ Максимальний розмір пенсії — застосовується обмеження</span>`);
+    if (disableProgressiveCoeff) {
+      ruleLines.push(`<span class="rule-ok">ℹ️ Прогресивні коефіцієнти 2025-2026 — <strong>вимкнено</strong> (просте зрізання до 10 ПМ)</span>`);
+    } else {
+      ruleLines.push(`<span class="rule-ok">ℹ️ Для 2025-2026 років застосовуються прогресивні коефіцієнти згідно з постановами №1 (2025) та №1778 (2026)</span>`);
+    }
+  }
+  if (!st.applyMaxCap) ruleLines.push(`<span class="rule-ok">ℹ️ Максимальний розмір пенсії — <strong>не застосовується</strong> (розрахунок без обмеження)</span>`);
+
+  document.getElementById('explanationBox').innerHTML = `
+    <h4>Вихідні дані</h4>
+    <div style="margin-bottom:16px;line-height:1.9;">${certLines}</div>
+    <h4>Застосовані правила</h4>
+    <div style="line-height:2;">${ruleLines.join('<br>')}</div>
+  `;
+
+  const now = new Date();
+  document.getElementById('calculationDate').innerText =
+    `Розрахунок виконано: ${now.toLocaleDateString('uk-UA')} о ${now.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'})}`;
+
+  document.getElementById('results').style.display = 'block';
+  setTimeout(() => document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' }), 120);
+}
+
+// ============================================================
+// SHARING VIA URL
+// ============================================================
+document.getElementById('btnShare')?.addEventListener('click', () => {
+  const certs = readCerts();
+  const status = readStatus();
+ 
+  const state = {
+    certs: certs.map(c => ({
+      date: c.docDate.toISOString().split('T')[0],
+      salary: c.salary,
+      percent: c.percent,
+      note: c.note,
+    })),
+    status: status,
+  };
+ 
+  try {
+    const encoded = btoa(JSON.stringify(state));
+    const url = new URL(window.location.href);
+    url.search = ''; // очищаємо попередні параметри
+    url.searchParams.set('state', encoded);
+   
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      alert('Посилання на розрахунок скопійовано до буферу обміну!');
+    }).catch(() => {
+      alert(`Скопіюйте посилання вручну: ${url.toString()}`);
+    });
+  } catch(e) {
+    alert('Помилка при створенні посилання');
+  }
+});
+
+// ============================================================
+// КОПІЮВАННЯ ТАБЛИЦІ В WORD / EXCEL
+// ============================================================
+document.getElementById('btnCopyTable')?.addEventListener('click', () => {
+  const table = document.querySelector('.table-wrap table');
+  if (!table || table.rows.length <= 1) {
+    alert('Спочатку виконайте розрахунок!');
+    return;
+  }
+
+  // Створюємо тимчасовий об'єкт для виділення
+  const range = document.createRange();
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  
+  try {
+    range.selectNodeContents(table);
+    sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    
+    // Візуальний фідбек
+    const btn = document.getElementById('btnCopyTable');
+    const originalText = btn.innerText;
+    btn.innerText = '✅ Скопійовано!';
+    setTimeout(() => { btn.innerText = originalText; }, 2000);
+  } catch (e) {
+    alert('Не вдалося скопіювати таблицю. Спробуйте виділити її мишкою.');
+  }
+});
+
+document.getElementById('btnCalc').addEventListener('click', calculate);
+</script>
+</body>
+</html>
